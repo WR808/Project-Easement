@@ -50,19 +50,22 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
-public class MotorBotConfig
+public class RoverBot
 {
     /* Public OpMode members. */
-    public DcMotor  leftDrive   = null;
+    public DcMotor  leftFrontDrive   = null;
+    public DcMotor  rightFrontDrive   = null;
+    public DcMotor  leftBackDrive   = null;
+    public DcMotor  rightBackDrive   = null;
 
-    public static final double MID_SERVO       =  0.5 ;
+
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
     /* Constructor */
-    public MotorBotConfig(){
+    public RoverBot(){
 
     }
 
@@ -72,15 +75,30 @@ public class MotorBotConfig
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        leftDrive  = hwMap.get(DcMotor.class, "left_drive");
-        leftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        leftFrontDrive  = hwMap.get(DcMotor.class, "Front_L");
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+
+        leftBackDrive  = hwMap.get(DcMotor.class, "Chain_L");
+        leftBackDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+
+        rightFrontDrive  = hwMap.get(DcMotor.class, "Front_R");
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+
+        rightBackDrive  = hwMap.get(DcMotor.class, "Chain_R");
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
         // Set all motors to zero power
-        leftDrive.setPower(0);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
-        leftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
  }
 
