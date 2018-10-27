@@ -62,9 +62,8 @@ public class RoverBot
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
-    private ElapsedTime period  = new ElapsedTime();
 
-    /* Constructor */
+
     public RoverBot(){
 
     }
