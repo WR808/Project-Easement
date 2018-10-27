@@ -99,6 +99,13 @@ public class Basic_driving extends LinearOpMode {
             double leftBackPower;
             double rightBackPower;
 
+            double liftPower;
+
+            // choosing which button to use to move the linear slide
+            double lift = gamepad2.right_stick_y;
+
+            liftPower = Range.clip(lift, -2.0, 2.0);
+
             // Choose to drive using either Tank Mode, or POV Mode
             // Comment out the method that's not used.  The default below is POV.
 
@@ -122,6 +129,9 @@ public class Basic_driving extends LinearOpMode {
             robot.leftBackDrive.setPower(leftBackPower);
             robot.rightBackDrive.setPower(rightBackPower);
 
+            //send power to lift
+            robot.linearLift.setPower(liftPower);
+            
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);

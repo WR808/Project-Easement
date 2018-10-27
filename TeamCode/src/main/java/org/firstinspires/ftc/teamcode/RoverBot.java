@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -58,7 +59,7 @@ public class RoverBot
     public DcMotor  leftBackDrive   = null;
     public DcMotor  rightBackDrive   = null;
 
-
+    public DcMotor  linearLift   = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -86,11 +87,17 @@ public class RoverBot
         rightBackDrive  = hwMap.get(DcMotor.class, "Chain_R");
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
 
+        linearLift  = hwMap.get(DcMotor.class, "Lift");
+        linearLift.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+
         // Set all motors to zero power
         leftFrontDrive.setPower(0);
         leftBackDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightBackDrive.setPower(0);
+
+        linearLift.setPower(0);
+
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -104,6 +111,9 @@ public class RoverBot
         leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        linearLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
     }
  }
 
