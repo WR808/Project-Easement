@@ -64,7 +64,13 @@ public class Basic_driving extends LinearOpMode {
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.6;
-    static final double TURN_SPEED = 0.5;    /* Constructor */
+    static final double TURN_SPEED = 0.5;
+
+    double          vacuumOffset      = 0;                       // Servo mid position
+    final double    vacuumSpeed      = 0.02 ;                   // sets rate to move servo
+
+
+    /* Constructor */
     private RoverBot robot = new RoverBot();
 
 
@@ -106,7 +112,16 @@ public class Basic_driving extends LinearOpMode {
 
             liftPower = Range.clip(lift, -2.0, 2.0);
 
-            // Choose to drive using either Tank Mode, or POV Mode
+            if (gamepad1.right_bumper)
+                vacuumOffset += vacuumSpeed;
+            else if (gamepad1.left_bumper)
+                vacuumOffset -= vacuumSpeed;
+
+            // Move both servos to new position.  Assume servos are mirror image of each other.
+            vacuumOffset = Range.clip(vacuumOffset, -0.5, 0.5);
+            robot.vacuum.setPosition(robot.MID_SERVO + vacuumOffset);
+
+             // Choose to drive using either Tank Mode, or POV Mode
             // Comment out the method that's not used.  The default below is POV.
 
             // POV Mode uses left stick to go forward, and right stick to turn.

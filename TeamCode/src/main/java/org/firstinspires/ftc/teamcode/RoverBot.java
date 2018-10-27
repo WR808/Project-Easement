@@ -54,13 +54,23 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class RoverBot
 {
     /* Public OpMode members. */
+    //drive motors
     public DcMotor  leftFrontDrive   = null;
     public DcMotor  rightFrontDrive   = null;
     public DcMotor  leftBackDrive   = null;
     public DcMotor  rightBackDrive   = null;
 
+    // lift motors
     public DcMotor  linearLift   = null;
 
+    // servos
+    public Servo vacuum = null;
+
+    public static final double MID_SERVO       =  0.5 ;
+    public static final double MIN_SERVO       = -0.5;
+    public static final double MAX_SERVO       = 1.5;
+    public static final double ARM_UP_POWER    =  0.45 ;
+    public static final double ARM_DOWN_POWER  = -0.45 ;
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
 
@@ -98,6 +108,11 @@ public class RoverBot
 
         linearLift.setPower(0);
 
+        //Define all servos
+        vacuum = hwMap.get(Servo.class, "vacuum");
+
+        //set servo positions
+        vacuum.setPosition(MIN_SERVO);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
