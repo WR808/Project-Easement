@@ -29,10 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -50,9 +48,9 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: OpMode", group="Linear Opmode")
+@TeleOp(name="Basic: Linear Slide", group="Linear Opmode")
 
-public class Basic_driving extends LinearOpMode {
+public class Basic_driving_Linear_Slide extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -72,7 +70,7 @@ public class Basic_driving extends LinearOpMode {
     static final int    CYCLE_MS    =   50;     // period of each cycle
 
     /* Constructor */
-    private RoverBot robot = new RoverBot();
+    private RoverBot_Test robot = new RoverBot_Test();
 
 
     @Override
@@ -80,10 +78,7 @@ public class Basic_driving extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         robot.init(hardwareMap);
-        robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -102,15 +97,15 @@ public class Basic_driving extends LinearOpMode {
             // Setup a variable for each drive wheel to save power level for telemetry
             double leftFrontPower;
             double rightFrontPower;
-            double leftBackPower;
+          //  double leftBackPower;
             double rightBackPower;
 
-          //  double liftPower;
+            double liftPower;
 
             // choosing which button to use to move the linear slide
-          //  double lift = gamepad2.right_stick_y;
+            double lift = gamepad2.right_stick_y;
 
-          //  liftPower = Range.clip(lift, -2.0, 2.0);
+            liftPower = Range.clip(lift, -2.0, 2.0);
 
             if (gamepad2.right_bumper)
                 vacuumPosition += vacuumSpeed;
@@ -129,10 +124,10 @@ public class Basic_driving extends LinearOpMode {
             // - This uses basic math to combine motions and is easier to drive straight.
             double drive = -gamepad1.left_stick_y;
             double turn = gamepad1.right_stick_x;
-            leftFrontPower = Range.clip(drive + turn, -5.0, 5.0);
-            rightFrontPower = Range.clip(drive - turn, -5.0, 5.0);
-            leftBackPower = Range.clip(drive + turn, -5.0, 5.0);
-            rightBackPower = Range.clip(drive - turn, -5.0, 5.0);
+            leftFrontPower = Range.clip(drive + turn, -10.0, 10.0);
+            rightFrontPower = Range.clip(drive - turn, -10.0, 10.0);
+           // leftBackPower = Range.clip(drive + turn, -10.0, 10.0);
+            rightBackPower = Range.clip(drive - turn, -10.0, 10.0);
 
             // Tank Mode uses one stick to control each wheel.
             // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -142,17 +137,17 @@ public class Basic_driving extends LinearOpMode {
             // Send calculated power to wheels
             robot.leftFrontDrive.setPower(leftFrontPower);
             robot.rightFrontDrive.setPower(rightFrontPower);
-            robot.leftBackDrive.setPower(leftBackPower);
+          //  robot.leftBackDrive.setPower(leftBackPower);
             robot.rightBackDrive.setPower(rightBackPower);
 
             //send power to lift
-           //robot.linearLift.setPower(liftPower);
+           robot.linearLift.setPower(liftPower);
             
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+         //   telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
             telemetry.addData("vacuum", "%2f", vacuumPosition);
-          //  telemetry.addData("Linear Slide","%2f",liftPower);
+            telemetry.addData("Linear Slide","%2f",liftPower);
             telemetry.update();
 
 
