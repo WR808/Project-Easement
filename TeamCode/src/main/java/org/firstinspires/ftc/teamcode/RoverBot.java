@@ -45,11 +45,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  * This hardware class assumes the following device names have been configured on the robot:
  * Note:  All names are lower case and some have single spaces between words.
  *
- * Motor channel:  Left  drive motor:        "left_drive" left drive is the only motor being used
- * Motor channel:  Right drive motor:        "right_drive"
- * Motor channel:  Manipulator drive motor:  "left_arm"
- * Servo channel:  Servo to open left claw:  "left_hand"
- * Servo channel:  Servo to open right claw: "right_hand"
+
  */
 public class RoverBot
 {
@@ -61,7 +57,7 @@ public class RoverBot
     public DcMotor  rightBackDrive   = null;
 
     // lift motors
-  //  public DcMotor  linearLift   = null;
+    public DcMotor  linearLift   = null;
 
     // servos
     public Servo vacuum = null;
@@ -96,7 +92,7 @@ public class RoverBot
         rightBackDrive  = hwMap.get(DcMotor.class, "Chain_R");
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
 
-     //   linearLift  = hwMap.get(DcMotor.class, "Lift");linearLift.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        linearLift  = hwMap.get(DcMotor.class, "Lift");linearLift.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
         // Set all motors to zero power
         leftFrontDrive.setPower(0);
@@ -104,7 +100,7 @@ public class RoverBot
         rightFrontDrive.setPower(0);
         rightBackDrive.setPower(0);
 
-     //  linearLift.setPower(0);
+      linearLift.setPower(0);
 
         //Define all servos
         vacuum = hwMap.get(Servo.class,"vacuum");
@@ -112,8 +108,6 @@ public class RoverBot
         //set servo positions
         vacuum.setPosition(MIN_SERVO);
 
-        // Set all motors to run without encoders.
-        // May want to use RUN_USING_ENCODERS if encoders are installed.
 
 
 

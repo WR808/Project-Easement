@@ -58,13 +58,6 @@ public class Basic_driving extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
 
-    static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: TETRIX Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 4.0;     // This is < 1.0 if geared UP
-    static final double WHEEL_DIAMETER_INCHES = 3.5;     // For figuring circumference
-    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 0.6;
-    static final double TURN_SPEED = 0.5;
 
     double          vacuumOffset      = 0;                       // Servo mid position
     final double    vacuumSpeed      = 0.1 ;                   // sets rate to move servo
@@ -80,10 +73,19 @@ public class Basic_driving extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         robot.init(hardwareMap);
+        sleep(5000);
         robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sleep(2000);
         robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sleep(2000);
         robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sleep(2000);
         robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sleep(2000);
+
+        robot.linearLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        sleep(2000);
+
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
@@ -95,7 +97,7 @@ public class Basic_driving extends LinearOpMode {
         waitForStart();
 
 
-      //    sleep(3000);
+
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
@@ -105,12 +107,12 @@ public class Basic_driving extends LinearOpMode {
             double leftBackPower;
             double rightBackPower;
 
-          //  double liftPower;
+            double liftPower;
 
             // choosing which button to use to move the linear slide
-          //  double lift = gamepad2.right_stick_y;
+            double lift = gamepad2.right_stick_y;
 
-          //  liftPower = Range.clip(lift, -2.0, 2.0);
+            liftPower = Range.clip(lift, -2.0, 2.0);
 
             if (gamepad2.right_bumper)
                 vacuumPosition += vacuumSpeed;
@@ -128,7 +130,7 @@ public class Basic_driving extends LinearOpMode {
             // POV Mode uses left stick to go forward, and right stick to turn.
             // - This uses basic math to combine motions and is easier to drive straight.
             double drive = -gamepad1.left_stick_y;
-            double turn = gamepad1.right_stick_x;
+            double turn = -gamepad1.right_stick_x;
             leftFrontPower = Range.clip(drive + turn, -5.0, 5.0);
             rightFrontPower = Range.clip(drive - turn, -5.0, 5.0);
             leftBackPower = Range.clip(drive + turn, -5.0, 5.0);
@@ -144,15 +146,18 @@ public class Basic_driving extends LinearOpMode {
             robot.rightFrontDrive.setPower(rightFrontPower);
             robot.leftBackDrive.setPower(leftBackPower);
             robot.rightBackDrive.setPower(rightBackPower);
+            sleep(CYCLE_MS);
+            idle();
 
             //send power to lift
-           //robot.linearLift.setPower(liftPower);
-            
+             robot.linearLift.setPower(liftPower);
+            sleep(CYCLE_MS);
+            idle();
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
             telemetry.addData("vacuum", "%2f", vacuumPosition);
-          //  telemetry.addData("Linear Slide","%2f",liftPower);
+            telemetry.addData("Linear Slide","%2f",liftPower);
             telemetry.update();
 
 
