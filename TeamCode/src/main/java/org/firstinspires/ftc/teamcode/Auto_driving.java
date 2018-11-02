@@ -72,25 +72,33 @@ public class Auto_driving extends LinearOpMode {
     double vacuumPosition = RoverBot.MIN_SERVO;
     static final int    CYCLE_MS    =   50;     // period of each cycle
 
-    /* Constructor */
+
     private RoverBot robot = new RoverBot();
 
 
 
     @Override
     public void runOpMode() {
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Initializing...");
         telemetry.update();
         robot.init(hardwareMap);
+
+        robot.leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.linearLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        // Most robots need the motor on one side to be reversed to drive forward
-        // Reverse the motor that runs backwards when connected directly to the battery
+
+        robot.linearLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
         // defines the lift
         double lift;
         // Wait for the game to start (driver presses PLAY)
@@ -136,7 +144,7 @@ public class Auto_driving extends LinearOpMode {
             // reset the timeout time and start motion.
             runtime.reset();
             robot.leftFrontDrive.setPower(Math.abs(speed));
-           robot.leftBackDrive.setPower(Math.abs(speed));
+            robot.leftBackDrive.setPower(Math.abs(speed));
             robot.rightFrontDrive.setPower(Math.abs(speed));
             robot.rightBackDrive.setPower(Math.abs(speed));
 
