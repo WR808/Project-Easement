@@ -129,7 +129,7 @@ public class Auto_driving extends LinearOpMode {
             newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
             newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
             newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
-            newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
             robot.leftFrontDrive.setTargetPosition(newLeftFrontTarget);
             robot.leftBackDrive.setTargetPosition(newLeftBackTarget);
             robot.rightFrontDrive.setTargetPosition(newRightFrontTarget);
@@ -148,7 +148,7 @@ public class Auto_driving extends LinearOpMode {
             robot.rightFrontDrive.setPower(Math.abs(speed));
             robot.rightBackDrive.setPower(Math.abs(speed));
 
-            // keep looping while we are still active, and there is time left, and both motors are running.
+            // keep looping while we are still active, and there is time left, and all motors are running.
             // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
             // its target position, the motion will stop.  This is "safer" in the event that the robot will
             // always end the motion as soon as possible.
