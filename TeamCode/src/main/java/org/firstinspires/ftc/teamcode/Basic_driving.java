@@ -129,10 +129,10 @@ public class Basic_driving extends LinearOpMode {
                 // - This uses basic math to combine motions and is easier to drive straight.
                 double drive = -gamepad1.left_stick_y;
                 double turn = -gamepad1.right_stick_x;
-                leftFrontPower = Range.clip(drive + turn, -10.0, 10.0);
-                rightFrontPower = Range.clip(drive - turn, -10.0, 10.0);
-                leftBackPower = Range.clip(drive + turn, -10.0, 10.0);
-                rightBackPower = Range.clip(drive - turn, -10.0, 10.0);
+                leftFrontPower = Range.clip(drive + turn, -20.0, 20.0);
+                rightFrontPower = Range.clip(drive - turn, -20.0, 20.0);
+                leftBackPower = Range.clip(drive + turn, -20.0, 20.0);
+                rightBackPower = Range.clip(drive - turn, -20.0, 20.0);
 
                 // Tank Mode uses one stick to control each wheel.
                 // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -149,8 +149,8 @@ public class Basic_driving extends LinearOpMode {
 
                 //send power to lift
                 robot.linearLift.setPower(liftPower);
-                sleep(CYCLE_MS);
-                idle();
+                //sleep(CYCLE_MS);
+               // idle();
                 // Show the elapsed game time and wheel power.
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
                 telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
