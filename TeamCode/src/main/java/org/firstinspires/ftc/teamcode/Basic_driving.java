@@ -42,28 +42,24 @@ import com.qualcomm.robotcore.util.Range;
  * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
  * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
- *
+ * <p>
  * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
  * It includes all the skeletal structure that all linear OpModes contain.
- *
+ * <p>
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name="Basic: OpMode", group="Linear Opmode")
+@TeleOp(name = "Basic: OpMode", group = "Linear Opmode")
 
 public class Basic_driving extends LinearOpMode {
 
+    static final int CYCLE_MS = 50;     // period of each cycle
+    final double vacuumSpeed = 0.1;                   // sets rate to move servo
+    double vacuumOffset = 0;                       // Servo mid position
+    double vacuumPosition = RoverBot.MIN_SERVO;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
-
-
-
-    double          vacuumOffset      = 0;                       // Servo mid position
-    final double    vacuumSpeed      = 0.1 ;                   // sets rate to move servo
-    double vacuumPosition = RoverBot.MIN_SERVO;
-    static final int    CYCLE_MS    =   50;     // period of each cycle
-
     /* Constructor */
     private RoverBot robot = new RoverBot();
 
@@ -97,75 +93,75 @@ public class Basic_driving extends LinearOpMode {
         waitForStart();
 
 
-
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            // Setup a variable for each drive wheel to save power level for telemetry
-            double leftFrontPower;
-            double rightFrontPower;
-            double leftBackPower;
-            double rightBackPower;
 
-            double liftPower;
+            {
 
-            // choosing which button to use to move the linear slide
-            double lift = gamepad2.right_stick_y;
+                // Setup a variable for each drive wheel to save power level for telemetry
+                double leftFrontPower;
+                double rightFrontPower;
+                double leftBackPower;
+                double rightBackPower;
 
-            liftPower = Range.clip(lift, -2.0, 2.0);
+                double liftPower;
 
-            if (gamepad2.right_bumper)
-                vacuumPosition += vacuumSpeed;
-            else if (gamepad2.left_bumper)
-                vacuumPosition -= vacuumSpeed;
+                // choosing which button to use to move the linear slide
+                double lift = gamepad2.right_stick_y;
 
-            // Move both servos to new position.  Assume servos are mirror image of each other.
-            vacuumPosition = Range.clip(vacuumPosition, robot.MIN_SERVO, robot.MAX_SERVO);
-            robot.vacuum.setPosition(vacuumPosition);
-            sleep(CYCLE_MS);
-            idle();
-             // Choose to drive using either Tank Mode, or POV Mode
-            // Comment out the method that's not used.  The default below is POV.
+                liftPower = Range.clip(lift, -5.0, 5.0);
 
-            // POV Mode uses left stick to go forward, and right stick to turn.
-            // - This uses basic math to combine motions and is easier to drive straight.
-            double drive = -gamepad1.left_stick_y;
-            double turn = -gamepad1.right_stick_x;
-            leftFrontPower = Range.clip(drive + turn, -5.0, 5.0);
-            rightFrontPower = Range.clip(drive - turn, -5.0, 5.0);
-            leftBackPower = Range.clip(drive + turn, -5.0, 5.0);
-            rightBackPower = Range.clip(drive - turn, -5.0, 5.0);
+                if (gamepad2.right_bumper)
+                    vacuumPosition += vacuumSpeed;
+                else if (gamepad2.left_bumper)
+                    vacuumPosition -= vacuumSpeed;
 
-            // Tank Mode uses one stick to control each wheel.
-            // - This requires no math, but it is hard to drive forward slowly and keep straight.
-            // leftPower  = -gamepad1.left_stick_y ;
-            // rightPower = -gamepad1.right_stick_y ;
+                // Move both servos to new position.  Assume servos are mirror image of each other.
+                vacuumPosition = Range.clip(vacuumPosition, robot.MIN_SERVO, robot.MAX_SERVO);
+                robot.vacuum.setPosition(vacuumPosition);
+                //               sleep(CYCLE_MS);
+                //               idle();
+                // Choose to drive using either Tank Mode, or POV Mode
+                // Comment out the method that's not used.  The default below is POV.
 
-            // Send calculated power to wheels
-            robot.leftFrontDrive.setPower(leftFrontPower);
-            robot.rightFrontDrive.setPower(rightFrontPower);
-            robot.leftBackDrive.setPower(leftBackPower);
-            robot.rightBackDrive.setPower(rightBackPower);
-            sleep(CYCLE_MS);
-            idle();
+                // POV Mode uses left stick to go forward, and right stick to turn.
+                // - This uses basic math to combine motions and is easier to drive straight.
+                double drive = -gamepad1.left_stick_y;
+                double turn = -gamepad1.right_stick_x;
+                leftFrontPower = Range.clip(drive + turn, -10.0, 10.0);
+                rightFrontPower = Range.clip(drive - turn, -10.0, 10.0);
+                leftBackPower = Range.clip(drive + turn, -10.0, 10.0);
+                rightBackPower = Range.clip(drive - turn, -10.0, 10.0);
 
-            //send power to lift
-             robot.linearLift.setPower(liftPower);
-            sleep(CYCLE_MS);
-            idle();
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-            telemetry.addData("vacuum", "%2f", vacuumPosition);
-            telemetry.addData("Linear Slide","%2f",liftPower);
-            telemetry.update();
+                // Tank Mode uses one stick to control each wheel.
+                // - This requires no math, but it is hard to drive forward slowly and keep straight.
+                // leftPower  = -gamepad1.left_stick_y ;
+                // rightPower = -gamepad1.right_stick_y ;
 
+                // Send calculated power to wheels
+                robot.leftFrontDrive.setPower(leftFrontPower);
+                robot.rightFrontDrive.setPower(rightFrontPower);
+                robot.leftBackDrive.setPower(leftBackPower);
+                robot.rightBackDrive.setPower(rightBackPower);
+                //               sleep(CYCLE_MS);
+                //               idle();
 
+                //send power to lift
+                robot.linearLift.setPower(liftPower);
+                sleep(CYCLE_MS);
+                idle();
+                // Show the elapsed game time and wheel power.
+                telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
+                telemetry.addData("vacuum", "%2f", vacuumPosition);
+                telemetry.addData("Linear Slide", "%2f", liftPower);
+                telemetry.update();
+
+            }
         }
-
     }
 
 
-
-    }
+}
 
