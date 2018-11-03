@@ -163,9 +163,9 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
         encoderLift(DRIVE_SPEED,120,8);
-        encoderDrive(TURN_SPEED, -6,6,3);
+        encoderDrive(TURN_SPEED, -8,8,5);
         encoderLift(DRIVE_SPEED, -60, 4);
-        encoderDrive(DRIVE_SPEED,  12,  12, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  10,  10, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
        // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
