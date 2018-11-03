@@ -30,6 +30,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.motors.RevRobotics20HdHexMotor;
+import com.qualcomm.hardware.motors.RevRobotics40HdHexMotor;
+import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -59,20 +61,24 @@ public class Auto_driving extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
 
-    static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: TETRIX Motor Encoder
-    static final double DRIVE_GEAR_REDUCTION = 4.0;     // This is < 1.0 if geared UP
+    static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: HD HEX Motor 40
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
     static final double WHEEL_DIAMETER_INCHES = 3.5;     // For figuring circumference
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double DRIVE_SPEED = 0.6;
+    static final double DRIVE_SPEED = 0.4;
     static final double TURN_SPEED = 0.5;
-
+    static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
     double          vacuumOffset      = 0;                       // Servo mid position
-    final double    vacuumSpeed      = 0.1 ;                   // sets rate to move servo
+    final double    vacuumSpeed      = 0.01 ;                   // sets rate to move servo
     double vacuumPosition = RoverBot.MIN_SERVO;
     static final int    CYCLE_MS    =   50;     // period of each cycle
 
-
+    //linear lift encoder variables
+    static final double COUNTS_PER_MOTOR_CORE = 290;    // eg: HD HEX Motor 40
+    static final double COUNTS_PER_INCH_CORE = (COUNTS_PER_MOTOR_CORE * DRIVE_GEAR_REDUCTION) /
+            (3.1415);
     private RoverBot robot = new RoverBot();
 
 
@@ -105,9 +111,13 @@ public class Auto_driving extends LinearOpMode {
         waitForStart();
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+
+        encoderLift(DRIVE_SPEED,10,3);
+        encoderDrive(TURN_SPEED, 12,-12,2);
+
+        encoderDrive(DRIVE_SPEED,  12,  12, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+       // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+        //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
 
 
@@ -121,15 +131,14 @@ public class Auto_driving extends LinearOpMode {
         int newLeftBackTarget;
         int newRightFrontTarget;
         int newRightBackTarget;
-
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
             newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
-            newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH_Chain);
             newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
-            newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+            newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH_Chain);
             robot.leftFrontDrive.setTargetPosition(newLeftFrontTarget);
             robot.leftBackDrive.setTargetPosition(newLeftBackTarget);
             robot.rightFrontDrive.setTargetPosition(newRightFrontTarget);
@@ -181,6 +190,59 @@ public class Auto_driving extends LinearOpMode {
             robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
               sleep(250);   // optional pause after each move
+        }
+
+
+    }
+
+    public void encoderLift ( double speed, double inches,
+                               double timeoutS)
+    {
+        int liftTarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            liftTarget = robot.linearLift.getCurrentPosition() + (int) (inches * COUNTS_PER_INCH_CORE);
+
+            robot.linearLift.setTargetPosition(liftTarget);
+
+
+            // Turn On RUN_TO_POSITION
+            robot.linearLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.linearLift.setPower(Math.abs(speed));
+
+
+            // keep looping while we are still active, and there is time left, and all motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.linearLift.isBusy() )) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to %7d :%7d", liftTarget);
+
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            robot.linearLift.setPower(0);
+
+
+            // Turn off RUN_TO_POSITION
+            robot.linearLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+            sleep(250);   // optional pause after each move
         }
 
 

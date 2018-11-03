@@ -69,18 +69,18 @@ public class Basic_driving extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
         robot.init(hardwareMap);
-        sleep(5000);
+  //      sleep(5000);
         robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        sleep(2000);
+  //      sleep(2000);
         robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        sleep(2000);
+    //    sleep(2000);
         robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        sleep(2000);
+    //    sleep(2000);
         robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        sleep(2000);
+     //   sleep(2000);
 
         robot.linearLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        sleep(2000);
+      //  sleep(2000);
 
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
@@ -129,10 +129,10 @@ public class Basic_driving extends LinearOpMode {
                 // - This uses basic math to combine motions and is easier to drive straight.
                 double drive = -gamepad1.left_stick_y;
                 double turn = -gamepad1.right_stick_x;
-                leftFrontPower = Range.clip(drive + turn, -20.0, 20.0);
-                rightFrontPower = Range.clip(drive - turn, -20.0, 20.0);
-                leftBackPower = Range.clip(drive + turn, -20.0, 20.0);
-                rightBackPower = Range.clip(drive - turn, -20.0, 20.0);
+                leftFrontPower = Range.clip(drive + turn, -1, 1.0);
+                rightFrontPower = Range.clip(drive - turn, -1.0, 1.0);
+                leftBackPower = Range.clip(drive + turn, -1.0, 1.0);
+                rightBackPower = Range.clip(drive - turn, -1.0, 1.0);
 
                 // Tank Mode uses one stick to control each wheel.
                 // - This requires no math, but it is hard to drive forward slowly and keep straight.
