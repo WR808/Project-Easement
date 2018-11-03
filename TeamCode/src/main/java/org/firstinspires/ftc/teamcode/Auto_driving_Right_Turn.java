@@ -70,7 +70,7 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.4;
-    static final double TURN_SPEED = 0.5;
+    static final double TURN_SPEED = 0.2;
     static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     double          vacuumOffset      = 0;                       // Servo mid position
@@ -106,8 +106,7 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
 
         robot.linearLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
+
         // defines the lift
         double lift;
 
@@ -126,6 +125,9 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
         int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
         final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
@@ -159,12 +161,12 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
-        encoderLift(DRIVE_SPEED,10,3);
-        encoderDrive(TURN_SPEED, 15,-15,2);
-        encoderLift(DRIVE_SPEED, -6, 2);
+        encoderLift(DRIVE_SPEED,120,8);
+        encoderDrive(TURN_SPEED, -6,6,3);
+        encoderLift(DRIVE_SPEED, -70, 4);
         encoderDrive(DRIVE_SPEED,  6,  6, 2.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(DRIVE_SPEED,  12,  -12, 2.0);
-        encoderDrive(DRIVE_SPEED,  30,  30, 2.0);
+        encoderDrive(TURN_SPEED,  -3,  3, 2.0);
+        encoderDrive(DRIVE_SPEED,  30,  30, 7.0);
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
@@ -253,7 +255,7 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            liftTarget = robot.linearLift.getCurrentPosition() + (int) (inches * COUNTS_PER_INCH_CORE);
+            liftTarget = robot.linearLift.getCurrentPosition() - (int) (inches * COUNTS_PER_INCH_CORE);
 
             robot.linearLift.setTargetPosition(liftTarget);
 

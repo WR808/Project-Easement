@@ -75,7 +75,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.4;
-    static final double TURN_SPEED = 0.5;
+    static final double TURN_SPEED = 0.2;
     static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     double          vacuumOffset      = 0;                       // Servo mid position
@@ -149,8 +149,6 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         telemetry.addData("Red  ", robot.sensorColorL.red());
         telemetry.addData("Green", robot.sensorColorL.green());
         telemetry.addData("Blue ", robot.sensorColorL.blue());
-        telemetry.addData("Hue", hsvValues[0]);
-
         // change the background color to match the color detected by the RGB sensor.
         // pass a reference to the hue, saturation, and value array as an argument
         // to the HSVToColor method.
@@ -164,9 +162,9 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
-        encoderLift(DRIVE_SPEED,10,3);
-        encoderDrive(TURN_SPEED, 12,-12,2);
-        encoderLift(DRIVE_SPEED, -6, 2);
+        encoderLift(DRIVE_SPEED,120,8);
+        encoderDrive(TURN_SPEED, -6,6,3);
+        encoderLift(DRIVE_SPEED, -60, 4);
         encoderDrive(DRIVE_SPEED,  12,  12, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
        // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
@@ -256,7 +254,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            liftTarget = robot.linearLift.getCurrentPosition() + (int) (inches * COUNTS_PER_INCH_CORE);
+            liftTarget = robot.linearLift.getCurrentPosition() - (int) (inches * COUNTS_PER_INCH_CORE);
 
             robot.linearLift.setTargetPosition(liftTarget);
 
