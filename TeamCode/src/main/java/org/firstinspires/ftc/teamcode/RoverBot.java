@@ -29,48 +29,46 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
  * This is NOT an opmode.
- *
+ * <p>
  * This class can be used to define all the specific hardware for a single robot.
  * In this case that robot is a Pushbot.
  * See PushbotTeleopTank_Iterative and others classes starting with "Pushbot" for usage examples.
- *
+ * <p>
  * This hardware class assumes the following device names have been configured on the robot:
  * Note:  All names are lower case and some have single spaces between words.
- *
-
  */
-public class RoverBot
-{
+public class RoverBot {
+    public static final double MID_SERVO = 0.5;
+    public static final double MIN_SERVO = 0;
+    public static final double MAX_SERVO = 1.0;
     /* Public OpMode members. */
     //drive motors
-    public DcMotor  leftFrontDrive   = null;
-    public DcMotor  rightFrontDrive   = null;
-    public DcMotor  leftBackDrive   = null;
-    public DcMotor  rightBackDrive   = null;
-
+    public DcMotor leftFrontDrive = null;
+    public DcMotor rightFrontDrive = null;
+    public DcMotor leftBackDrive = null;
+    public DcMotor rightBackDrive = null;
     // lift motors
-    public DcMotor  linearLift   = null;
-
+    public DcMotor linearLift = null;
     // servos
     public Servo vacuum = null;
-
-    public static final double MID_SERVO       =  0.5 ;
-    public static final double MIN_SERVO       = 0;
-    public static final double MAX_SERVO       = 1.0;
-
+    // sensors
+    ColorSensor sensorColorL;
+    DistanceSensor sensorDistanceL;
+    ColorSensor sensorColorR;
+    DistanceSensor sensorDistanceR;
     /* local OpMode members. */
-    HardwareMap hwMap           =  null;
+    HardwareMap hwMap = null;
 
 
-    public RoverBot(){
+    public RoverBot() {
 
     }
 
@@ -80,19 +78,20 @@ public class RoverBot
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        leftFrontDrive  = hwMap.get(DcMotor.class, "Front_L");
+        leftFrontDrive = hwMap.get(DcMotor.class, "Front_L");
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
-        leftBackDrive  = hwMap.get(DcMotor.class, "Chain_L");
+        leftBackDrive = hwMap.get(DcMotor.class, "Chain_L");
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
-        rightFrontDrive  = hwMap.get(DcMotor.class, "Front_R");
+        rightFrontDrive = hwMap.get(DcMotor.class, "Front_R");
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
 
-        rightBackDrive  = hwMap.get(DcMotor.class, "Chain_R");
+        rightBackDrive = hwMap.get(DcMotor.class, "Chain_R");
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
 
-        linearLift  = hwMap.get(DcMotor.class, "Lift");linearLift.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        linearLift = hwMap.get(DcMotor.class, "Lift");
+        linearLift.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
         // Set all motors to zero power
         leftFrontDrive.setPower(0);
@@ -100,21 +99,28 @@ public class RoverBot
         rightFrontDrive.setPower(0);
         rightBackDrive.setPower(0);
 
-      linearLift.setPower(0);
+        linearLift.setPower(0);
 
         //Define all servos
-        vacuum = hwMap.get(Servo.class,"vacuum");
+        vacuum = hwMap.get(Servo.class, "vacuum");
 
         //set servo positions
         vacuum.setPosition(MIN_SERVO);
 
 
+        // setup sensors
+        // get a reference to the color sensor.
+        sensorColorL = hwMap.get(ColorSensor.class, "sensor_color_distanceL");
 
+        // get a reference to the distance sensor that shares the same name.
+        sensorDistanceL = hwMap.get(DistanceSensor.class, "sensor_color_distanceL");
 
+        sensorColorR = hwMap.get(ColorSensor.class, "sensor_color_distanceR");
 
+        // get a reference to the distance sensor that shares the same name.
+        sensorDistanceR = hwMap.get(DistanceSensor.class, "sensor_color_distanceR");
 
-     //   linearLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
- }
+}
 

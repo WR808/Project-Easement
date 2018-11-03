@@ -1,0 +1,299 @@
+/* Copyright (c) 2017 FIRST. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.firstinspires.ftc.teamcode;
+
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import java.util.Locale;
+
+
+/**
+ * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
+ * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
+ * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
+ * class is instantiated on the Robot Controller and executed.
+ *
+ * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
+ * It includes all the skeletal structure that all linear OpModes contain.
+ *
+ * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
+ * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
+ */
+
+@Autonomous(name="Auto: right turn Driving", group="Linear Opmode")
+
+public class Auto_driving_Right_Turn extends LinearOpMode {
+
+    // Declare OpMode members.
+    private ElapsedTime runtime = new ElapsedTime();
+
+
+    static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: HD HEX Motor 40
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
+    static final double WHEEL_DIAMETER_INCHES = 3.5;     // For figuring circumference
+    static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final double DRIVE_SPEED = 0.4;
+    static final double TURN_SPEED = 0.5;
+    static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+    double          vacuumOffset      = 0;                       // Servo mid position
+    final double    vacuumSpeed      = 0.01 ;                   // sets rate to move servo
+    double vacuumPosition = RoverBot.MIN_SERVO;
+    static final int    CYCLE_MS    =   50;     // period of each cycle
+
+    //linear lift encoder variables
+    static final double COUNTS_PER_MOTOR_CORE = 290;    // eg: HD HEX Motor 40
+    static final double COUNTS_PER_INCH_CORE = (COUNTS_PER_MOTOR_CORE * DRIVE_GEAR_REDUCTION) /
+            (3.1415);
+    private RoverBot robot = new RoverBot();
+
+
+
+    @Override
+    public void runOpMode() {
+        telemetry.addData("Status", "Initializing...");
+        telemetry.update();
+        robot.init(hardwareMap);
+
+        robot.leftFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.leftBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightFrontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rightBackDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.linearLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        robot.linearLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
+        // defines the lift
+        double lift;
+
+        // hsvValues is an array that will hold the hue, saturation, and value information.
+        float hsvValues[] = {0F, 0F, 0F};
+
+        // values is a reference to the hsvValues array.
+        final float values[] = hsvValues;
+
+        // sometimes it helps to multiply the raw RGB values with a scale factor
+        // to amplify/attentuate the measured values.
+        final double SCALE_FACTOR = 255;
+
+        // get a reference to the RelativeLayout so we can change the background
+        // color of the Robot Controller app to match the hue detected by the RGB sensor.
+        int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
+        final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
+
+        // Wait for the game to start (driver presses PLAY)
+        waitForStart();
+
+        // convert the RGB values to HSV values.
+        // multiply by the SCALE_FACTOR.
+        // then cast it back to int (SCALE_FACTOR is a double)
+        Color.RGBToHSV((int) (robot.sensorColorL.red() * SCALE_FACTOR),
+                (int) (robot.sensorColorL.green() * SCALE_FACTOR),
+                (int) (robot.sensorColorL.blue() * SCALE_FACTOR),
+                hsvValues);
+
+        // send the info back to driver station using telemetry function.
+        telemetry.addData("Distance (cm)",
+                String.format(Locale.US, "%02f", robot.sensorDistanceL.getDistance(DistanceUnit.CM)));
+        telemetry.addData("Alpha", robot.sensorColorL.alpha());
+        telemetry.addData("Red  ", robot.sensorColorL.red());
+        telemetry.addData("Green", robot.sensorColorL.green());
+        telemetry.addData("Blue ", robot.sensorColorL.blue());
+        telemetry.addData("Hue", hsvValues[0]);
+
+        // change the background color to match the color detected by the RGB sensor.
+        // pass a reference to the hue, saturation, and value array as an argument
+        // to the HSVToColor method.
+        relativeLayout.post(new Runnable() {
+            public void run() {
+                relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+            }
+        });
+
+        telemetry.update();
+        // Step through each leg of the path,
+        // Note: Reverse movement is obtained by setting a negative distance (not speed)
+
+        encoderLift(DRIVE_SPEED,10,3);
+        encoderDrive(TURN_SPEED, 15,-15,2);
+        encoderLift(DRIVE_SPEED, -6, 2);
+        encoderDrive(DRIVE_SPEED,  6,  6, 2.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  12,  -12, 2.0);
+        encoderDrive(DRIVE_SPEED,  30,  30, 2.0);
+        // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+        //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+
+
+
+
+    }
+
+    public void encoderDrive ( double speed, double leftInches, double rightInches,
+                               double timeoutS)
+    {
+        int newLeftFrontTarget;
+        int newLeftBackTarget;
+        int newRightFrontTarget;
+        int newRightBackTarget;
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH_Chain);
+            newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+            newRightBackTarget = robot.rightBackDrive.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH_Chain);
+            robot.leftFrontDrive.setTargetPosition(newLeftFrontTarget);
+            robot.leftBackDrive.setTargetPosition(newLeftBackTarget);
+            robot.rightFrontDrive.setTargetPosition(newRightFrontTarget);
+            robot.rightBackDrive.setTargetPosition(newRightBackTarget);
+
+            // Turn On RUN_TO_POSITION
+            robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.leftFrontDrive.setPower(Math.abs(speed));
+            robot.leftBackDrive.setPower(Math.abs(speed));
+            robot.rightFrontDrive.setPower(Math.abs(speed));
+            robot.rightBackDrive.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and all motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.leftFrontDrive.isBusy() && robot.leftBackDrive.isBusy() && robot.rightFrontDrive.isBusy() && robot.rightBackDrive.isBusy())) {
+
+                // Display it for the driver.
+               telemetry.addData("Path1", "Running to %7d :%7d", newLeftFrontTarget, newLeftBackTarget, newRightFrontTarget, newRightBackTarget);
+                telemetry.addData("Path2", "Running at %7d :%7d",
+                        robot.leftFrontDrive.getCurrentPosition(),
+                        robot.leftBackDrive.getCurrentPosition(),
+                        robot.rightFrontDrive.getCurrentPosition(),
+                        robot.rightBackDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            robot.leftFrontDrive.setPower(0);
+            robot.leftBackDrive.setPower(0);
+            robot.rightFrontDrive.setPower(0);
+            robot.rightBackDrive.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+              sleep(250);   // optional pause after each move
+        }
+
+
+    }
+
+    public void encoderLift ( double speed, double inches,
+                               double timeoutS)
+    {
+        int liftTarget;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Determine new target position, and pass to motor controller
+            liftTarget = robot.linearLift.getCurrentPosition() + (int) (inches * COUNTS_PER_INCH_CORE);
+
+            robot.linearLift.setTargetPosition(liftTarget);
+
+
+            // Turn On RUN_TO_POSITION
+            robot.linearLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.linearLift.setPower(Math.abs(speed));
+
+
+            // keep looping while we are still active, and there is time left, and all motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive() &&
+                    (runtime.seconds() < timeoutS) &&
+                    (robot.linearLift.isBusy() )) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to %7d", liftTarget);
+
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            robot.linearLift.setPower(0);
+
+
+            // Turn off RUN_TO_POSITION
+            robot.linearLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+            sleep(250);   // optional pause after each move
+        }
+
+
+    }
+}

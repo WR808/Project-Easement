@@ -29,6 +29,10 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
+
 import com.qualcomm.hardware.motors.RevRobotics20HdHexMotor;
 import com.qualcomm.hardware.motors.RevRobotics40HdHexMotor;
 import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
@@ -38,6 +42,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+import java.util.Locale;
 
 
 /**
@@ -53,9 +61,9 @@ import com.qualcomm.robotcore.util.Range;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto: Driving", group="Linear Opmode")
+@Autonomous(name="Auto: Uturn Driving", group="Linear Opmode")
 
-public class Auto_driving extends LinearOpMode {
+public class Auto_driving_uturn_straight extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -107,14 +115,58 @@ public class Auto_driving extends LinearOpMode {
         telemetry.update();
         // defines the lift
         double lift;
+
+        // hsvValues is an array that will hold the hue, saturation, and value information.
+        float hsvValues[] = {0F, 0F, 0F};
+
+        // values is a reference to the hsvValues array.
+        final float values[] = hsvValues;
+
+        // sometimes it helps to multiply the raw RGB values with a scale factor
+        // to amplify/attentuate the measured values.
+        final double SCALE_FACTOR = 255;
+
+        // get a reference to the RelativeLayout so we can change the background
+        // color of the Robot Controller app to match the hue detected by the RGB sensor.
+        int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
+        final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
+        // convert the RGB values to HSV values.
+        // multiply by the SCALE_FACTOR.
+        // then cast it back to int (SCALE_FACTOR is a double)
+        Color.RGBToHSV((int) (robot.sensorColorL.red() * SCALE_FACTOR),
+                (int) (robot.sensorColorL.green() * SCALE_FACTOR),
+                (int) (robot.sensorColorL.blue() * SCALE_FACTOR),
+                hsvValues);
+
+        // send the info back to driver station using telemetry function.
+        telemetry.addData("Distance (cm)",
+                String.format(Locale.US, "%02f", robot.sensorDistanceL.getDistance(DistanceUnit.CM)));
+        telemetry.addData("Alpha", robot.sensorColorL.alpha());
+        telemetry.addData("Red  ", robot.sensorColorL.red());
+        telemetry.addData("Green", robot.sensorColorL.green());
+        telemetry.addData("Blue ", robot.sensorColorL.blue());
+        telemetry.addData("Hue", hsvValues[0]);
+
+        // change the background color to match the color detected by the RGB sensor.
+        // pass a reference to the hue, saturation, and value array as an argument
+        // to the HSVToColor method.
+        relativeLayout.post(new Runnable() {
+            public void run() {
+                relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+            }
+        });
+
+        telemetry.update();
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
         encoderLift(DRIVE_SPEED,10,3);
         encoderDrive(TURN_SPEED, 12,-12,2);
-
+        encoderLift(DRIVE_SPEED, -6, 2);
         encoderDrive(DRIVE_SPEED,  12,  12, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
        // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
@@ -229,7 +281,7 @@ public class Auto_driving extends LinearOpMode {
                     (robot.linearLift.isBusy() )) {
 
                 // Display it for the driver.
-                telemetry.addData("Path1", "Running to %7d :%7d", liftTarget);
+                telemetry.addData("Path1", "Running to %7d", liftTarget);
 
                 telemetry.update();
             }
