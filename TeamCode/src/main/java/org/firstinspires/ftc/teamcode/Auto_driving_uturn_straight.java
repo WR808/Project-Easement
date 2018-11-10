@@ -43,7 +43,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 
@@ -78,17 +84,18 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     static final double TURN_SPEED = 0.2;
     static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    double          vacuumOffset      = 0;                       // Servo mid position
-    final double    vacuumSpeed      = 0.01 ;                   // sets rate to move servo
+    double vacuumOffset = 0;                       // Servo mid position
+    final double vacuumSpeed = 0.01;                   // sets rate to move servo
     double vacuumPosition = RoverBot.MIN_SERVO;
-    static final int    CYCLE_MS    =   50;     // period of each cycle
+    static final int CYCLE_MS = 50;     // period of each cycle
 
     //linear lift encoder variables
     static final double COUNTS_PER_MOTOR_CORE = 290;    // eg: HD HEX Motor 40
     static final double COUNTS_PER_INCH_CORE = (COUNTS_PER_MOTOR_CORE * DRIVE_GEAR_REDUCTION) /
             (3.1415);
+    Orientation angles;
+    Acceleration gravity;
     private RoverBot robot = new RoverBot();
-
 
 
     @Override
@@ -132,8 +139,47 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
         // Wait for the game to start (driver presses PLAY)
+        // Set up our telemetry dashboard
+        composeTelemetry();
         waitForStart();
+        updateColorSensor(hsvValues, values, SCALE_FACTOR, relativeLayout);
 
+        // Step through each leg of the path,
+        // Note: Reverse movement is obtained by setting a negative distance (not speed)
+
+        // Stop robot while gyro requires calibration
+        int localIterations = 0;
+        telemetry.addData("IMU Status", "Checking if IMU is calibrated....");
+        telemetry.update();
+
+        while (!isStopRequested() && !robot.imu.isGyroCalibrated()) {
+            sleep(50);
+            idle();
+            localIterations++;
+            if(localIterations == 0) {
+                telemetry.addData("IMU Status", "IMU is not calibrated. Please wait while we calibrate the IMU.");
+                telemetry.update();
+            }
+        }
+
+        telemetry.addData("IMU Status", "IMU is calibrated.");
+        telemetry.update();
+
+        // Run program after IMU is confirmed to be calibrated.
+        // Old code (works)
+        /*encoderLift(DRIVE_SPEED, 120, 8);
+        encoderDrive(TURN_SPEED, -8, 8, 5);
+        encoderLift(DRIVE_SPEED, -60, 4);
+        encoderDrive(DRIVE_SPEED, 10, 10, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+        //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
+
+        encoderLift(DRIVE_SPEED, 120, 8);
+        
+        encoderLift(DRIVE_SPEED, -60, 4);
+    }
+
+    private void updateColorSensor(float[] hsvValues, final float[] values, double SCALE_FACTOR, final View relativeLayout) {
         // convert the RGB values to HSV values.
         // multiply by the SCALE_FACTOR.
         // then cast it back to int (SCALE_FACTOR is a double)
@@ -159,24 +205,10 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         });
 
         telemetry.update();
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-
-        encoderLift(DRIVE_SPEED,120,8);
-        encoderDrive(TURN_SPEED, -8,8,5);
-        encoderLift(DRIVE_SPEED, -60, 4);
-        encoderDrive(DRIVE_SPEED,  10,  10, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-       // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-
-
-
-
     }
 
-    public void encoderDrive ( double speed, double leftInches, double rightInches,
-                               double timeoutS)
-    {
+    public void encoderDrive(double speed, double leftInches, double rightInches,
+                             double timeoutS) {
         int newLeftFrontTarget;
         int newLeftBackTarget;
         int newRightFrontTarget;
@@ -218,7 +250,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
                     (robot.leftFrontDrive.isBusy() && robot.leftBackDrive.isBusy() && robot.rightFrontDrive.isBusy() && robot.rightBackDrive.isBusy())) {
 
                 // Display it for the driver.
-               telemetry.addData("Path1", "Running to %7d :%7d", newLeftFrontTarget, newLeftBackTarget, newRightFrontTarget, newRightBackTarget);
+                telemetry.addData("Path1", "Running to %7d :%7d", newLeftFrontTarget, newLeftBackTarget, newRightFrontTarget, newRightBackTarget);
                 telemetry.addData("Path2", "Running at %7d :%7d",
                         robot.leftFrontDrive.getCurrentPosition(),
                         robot.leftBackDrive.getCurrentPosition(),
@@ -239,15 +271,12 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-              sleep(250);   // optional pause after each move
+            sleep(250);   // optional pause after each move
         }
-
-
     }
 
-    public void encoderLift ( double speed, double inches,
-                               double timeoutS)
-    {
+    public void encoderLift(double speed, double inches,
+                            double timeoutS) {
         int liftTarget;
 
         // Ensure that the opmode is still active
@@ -276,7 +305,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
             while (opModeIsActive() &&
                     (runtime.seconds() < timeoutS) &&
-                    (robot.linearLift.isBusy() )) {
+                    (robot.linearLift.isBusy())) {
 
                 // Display it for the driver.
                 telemetry.addData("Path1", "Running to %7d", liftTarget);
@@ -294,7 +323,83 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
 
             sleep(250);   // optional pause after each move
         }
+    }
+    void composeTelemetry () {
 
+        // At the beginning of each telemetry update, grab a bunch of data
+        // from the IMU that we will then display in separate lines.
+        telemetry.addAction(new Runnable() {
+            @Override
+            public void run() {
+                // Acquiring the angles is relatively expensive; we don't want
+                // to do that in each of the three items that need that info, as that's
+                // three times the necessary expense.
+                angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = robot.imu.getGravity();
+            }
+        });
 
+        telemetry.addLine()
+                .addData("status", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return robot.imu.getSystemStatus().toShortString();
+                    }
+                })
+                .addData("calib", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return robot.imu.getCalibrationStatus().toString();
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("heading", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return formatAngle(angles.angleUnit, angles.firstAngle);
+                    }
+                })
+                .addData("roll", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return formatAngle(angles.angleUnit, angles.secondAngle);
+                    }
+                })
+                .addData("pitch", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return formatAngle(angles.angleUnit, angles.thirdAngle);
+                    }
+                });
+
+        telemetry.addLine()
+                .addData("grvty", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return gravity.toString();
+                    }
+                })
+                .addData("mag", new Func<String>() {
+                    @Override
+                    public String value() {
+                        return String.format(Locale.getDefault(), "%.3f",
+                                Math.sqrt(gravity.xAccel * gravity.xAccel
+                                        + gravity.yAccel * gravity.yAccel
+                                        + gravity.zAccel * gravity.zAccel));
+                    }
+                });
+    }
+
+    //----------------------------------------------------------------------------------------------
+    // Formatting
+    //----------------------------------------------------------------------------------------------
+
+    String formatAngle (AngleUnit angleUnit,double angle){
+        return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
+    }
+
+    String formatDegrees ( double degrees){
+        return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 }
