@@ -51,6 +51,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+import java.lang.reflect.Array;
 import java.util.Locale;
 
 
@@ -95,6 +96,30 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             (3.1415);
     Orientation angles;
     Acceleration gravity;
+
+    Orientation lastAngles = new Orientation();
+    double globalAngle, power = .30, correction;
+
+    private double checkDirection()
+    {
+        // The gain value determines how sensitive the correction is to direction changes.
+        // You will have to experiment with your robot to get small smooth direction changes
+        // to stay on a straight line.
+        double correction, angle, gain = .10;
+
+        angle = getAngle();
+
+        if (angle == 0)
+            correction = 0;             // no adjustment.
+        else
+            correction = -angle;        // reverse sign of angle for correction.
+
+        correction = correction * gain;
+
+        return correction;
+    }
+
+
     private RoverBot robot = new RoverBot();
 
 
@@ -141,11 +166,6 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         // Set up our telemetry dashboard
         composeTelemetry();
-        waitForStart();
-        updateColorSensor(hsvValues, values, SCALE_FACTOR, relativeLayout);
-
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
         // Stop robot while gyro requires calibration
         int localIterations = 0;
@@ -155,15 +175,21 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         while (!isStopRequested() && !robot.imu.isGyroCalibrated()) {
             sleep(50);
             idle();
-            localIterations++;
             if(localIterations == 0) {
                 telemetry.addData("IMU Status", "IMU is not calibrated. Please wait while we calibrate the IMU.");
                 telemetry.update();
+                localIterations++;
             }
         }
 
         telemetry.addData("IMU Status", "IMU is calibrated.");
         telemetry.update();
+
+        waitForStart();
+        updateColorSensor(hsvValues, values, SCALE_FACTOR, relativeLayout);
+
+        // Step through each leg of the path,
+        // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
         // Run program after IMU is confirmed to be calibrated.
         // Old code (works)
@@ -175,7 +201,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
 
         encoderLift(DRIVE_SPEED, 120, 8);
-        
+        rotate(180, 0.25);
         encoderLift(DRIVE_SPEED, -60, 4);
     }
 
@@ -207,7 +233,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         telemetry.update();
     }
 
-    public void encoderDrive(double speed, double leftInches, double rightInches,
+    private void encoderDrive(double speed, double leftInches, double rightInches,
                              double timeoutS) {
         int newLeftFrontTarget;
         int newLeftBackTarget;
@@ -215,7 +241,6 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         int newRightBackTarget;
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
-
             // Determine new target position, and pass to motor controller
             newLeftFrontTarget = robot.leftFrontDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
             newLeftBackTarget = robot.leftBackDrive.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH_Chain);
@@ -275,12 +300,13 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         }
     }
 
-    public void encoderLift(double speed, double inches,
+    private void encoderLift(double speed, double inches,
                             double timeoutS) {
         int liftTarget;
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
+            correction = checkDirection();
 
             // Determine new target position, and pass to motor controller
             liftTarget = robot.linearLift.getCurrentPosition() - (int) (inches * COUNTS_PER_INCH_CORE);
@@ -324,7 +350,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             sleep(250);   // optional pause after each move
         }
     }
-    void composeTelemetry () {
+    private void composeTelemetry () {
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
@@ -401,5 +427,85 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
 
     String formatDegrees ( double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+    private void rotate(int degrees, double power) {
+        double  leftPower, rightPower;
+
+        // restart imu movement tracking.
+        resetAngle();
+
+        // getAngle() returns + when rotating counter clockwise (left) and - when rotating
+        // clockwise (right).
+
+        if (degrees < 0)
+        {   // turn right.
+            leftPower = -power;
+            rightPower = power;
+        }
+        else if (degrees > 0)
+        {   // turn left.
+            leftPower = power;
+            rightPower = -power;
+        }
+        else return;
+
+        // set power to rotate.
+        robot.leftFrontDrive.setPower(leftPower);
+        robot.leftBackDrive.setPower(leftPower);
+
+        robot.rightFrontDrive.setPower(rightPower);
+        robot.rightBackDrive.setPower(rightPower);
+
+        // rotate until turn is completed.
+        if (degrees < 0)
+        {
+            // On right turn we have to get off zero first.
+            while (opModeIsActive() && getAngle() == 0) {}
+
+            while (opModeIsActive() && getAngle() > degrees) {}
+        }
+        else    // left turn.
+            while (opModeIsActive() && getAngle() < degrees) {}
+
+        // turn the motors off.
+        robot.leftFrontDrive.setPower(0);
+        robot.leftBackDrive.setPower(0);
+
+        robot.rightFrontDrive.setPower(0);
+        robot.rightBackDrive.setPower(0);
+
+        // wait for rotation to stop.
+        sleep(1000);
+
+        // reset angle tracking on new heading.
+        resetAngle();
+    }
+    private void resetAngle() {
+        lastAngles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        globalAngle = 0;
+    }
+    private double getAngle() {
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+        lastAngles = angles;
+
+        Orientation angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
     }
 }

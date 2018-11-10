@@ -175,7 +175,7 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
 
     }
 
-    public void encoderDrive ( double speed, double leftInches, double rightInches,
+    private void encoderDrive ( double speed, double leftInches, double rightInches,
                                double timeoutS)
     {
         int newLeftFrontTarget;
@@ -246,7 +246,7 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
 
     }
 
-    public void encoderLift ( double speed, double inches,
+    private void encoderLift ( double speed, double inches,
                                double timeoutS)
     {
         int liftTarget;
