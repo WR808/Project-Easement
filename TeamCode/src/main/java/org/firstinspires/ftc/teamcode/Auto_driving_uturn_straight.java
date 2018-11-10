@@ -200,9 +200,14 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
 
-        encoderLift(DRIVE_SPEED, 120, 8);
-        rotate(180, 0.25);
-        encoderLift(DRIVE_SPEED, -60, 4);
+        encoderLift(DRIVE_SPEED, -120, 8);
+        rotate(-180, 0.7);
+        /*rotate(-30, 0.25);
+        rotate(-15, 0.25);
+        rotate(40, 0.25);
+        rotate(30, 0.25);
+        rotate(15, 0.25);*/
+        encoderLift(DRIVE_SPEED, 60, 4);
     }
 
     private void updateColorSensor(float[] hsvValues, final float[] values, double SCALE_FACTOR, final View relativeLayout) {
@@ -438,13 +443,11 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // getAngle() returns + when rotating counter clockwise (left) and - when rotating
         // clockwise (right).
 
-        if (degrees < 0)
-        {   // turn right.
+        if (degrees < 0) {   // turn right.
             leftPower = -power;
-            rightPower = power;
+            rightPower = +power;
         }
-        else if (degrees > 0)
-        {   // turn left.
+        else if (degrees > 0) {   // turn left.
             leftPower = power;
             rightPower = -power;
         }
