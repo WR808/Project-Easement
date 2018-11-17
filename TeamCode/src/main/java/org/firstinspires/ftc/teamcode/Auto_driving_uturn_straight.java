@@ -466,10 +466,14 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             // On right turn we have to get off zero first.
             while (opModeIsActive() && getAngle() == 0) {}
 
-            while (opModeIsActive() && getAngle() > degrees) {}
+            while (opModeIsActive() && getAngle() > degrees) {
+                telemetry.update();
+            }
         }
         else    // left turn.
-            while (opModeIsActive() && getAngle() < degrees) {}
+            while (opModeIsActive() && getAngle() < degrees) {
+                telemetry.update();
+            }
 
         // turn the motors off.
         robot.leftFrontDrive.setPower(0);
