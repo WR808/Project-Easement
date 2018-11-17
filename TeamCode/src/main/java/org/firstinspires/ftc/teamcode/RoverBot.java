@@ -50,9 +50,10 @@ import com.qualcomm.robotcore.hardware.Servo;
  * Note:  All names are lower case and some have single spaces between words.
  */
 public class RoverBot {
-    public static final double MID_SERVO = 0.5;
+    public static final double MID_SERVO = 0.4;
     public static final double MIN_SERVO = 0;
-    public static final double MAX_SERVO = 1.0;
+    public static final double MAX_SERVO = 0.8;
+
     /* Public OpMode members. */
     //drive motors
     public DcMotor leftFrontDrive = null;
@@ -62,7 +63,8 @@ public class RoverBot {
     // lift motors
     public DcMotor linearLift = null;
     // servos
-    public Servo vacuum = null;
+    public Servo pinchVertical = null;
+    public Servo pinchHorizontal = null;
     // sensors
     ColorSensor sensorColorL;
     DistanceSensor sensorDistanceL;
@@ -107,11 +109,11 @@ public class RoverBot {
         linearLift.setPower(0);
 
         //Define all servos
-        vacuum = hwMap.get(Servo.class, "vacuum");
+        pinchVertical = hwMap.get(Servo.class, "pinch_v");
+        pinchHorizontal = hwMap.get(Servo.class, "pinch_h");
 
-        //set servo positions
-        vacuum.setPosition(MIN_SERVO);
-
+        pinchVertical.setPosition(MIN_SERVO);
+        pinchHorizontal.setPosition(MID_SERVO);
 
         // setup sensors
         // get a reference to the color sensor.

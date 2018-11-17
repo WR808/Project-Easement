@@ -55,9 +55,10 @@ import com.qualcomm.robotcore.util.Range;
 public class Basic_driving extends LinearOpMode {
 
     static final int CYCLE_MS = 50;     // period of each cycle
-    final double vacuumSpeed = 0.1;                   // sets rate to move servo
-    double vacuumOffset = 0;                       // Servo mid position
-    double vacuumPosition = RoverBot.MIN_SERVO;
+    final double pinchSpeed = 0.01;                   // sets rate to move servo
+    double pinchOffset = 0;                       // Servo mid position
+    double pinchVerticalPos = RoverBot.MIN_SERVO;
+    double pinchHorizontalPos = RoverBot.MID_SERVO;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     /* Constructor */
@@ -113,13 +114,22 @@ public class Basic_driving extends LinearOpMode {
                 liftPower = Range.clip(lift, -5.0, 5.0);
 
                 if (gamepad2.right_bumper)
-                    vacuumPosition += vacuumSpeed;
+                    pinchHorizontalPos += pinchSpeed;
                 else if (gamepad2.left_bumper)
-                    vacuumPosition -= vacuumSpeed;
+                    pinchHorizontalPos -= pinchSpeed;
 
                 // Move both servos to new position.  Assume servos are mirror image of each other.
-                vacuumPosition = Range.clip(vacuumPosition, robot.MIN_SERVO, robot.MAX_SERVO);
-                robot.vacuum.setPosition(vacuumPosition);
+                pinchHorizontalPos = Range.clip(pinchHorizontalPos, robot.MIN_SERVO, robot.MAX_SERVO);
+                robot.pinchHorizontal.setPosition(pinchHorizontalPos);
+
+                if (gamepad2.a)
+                    pinchVerticalPos += pinchSpeed;
+                else if (gamepad2.b)
+                    pinchVerticalPos -= pinchSpeed;
+
+                // Move both servos to new position.  Assume servos are mirror image of each other.
+                pinchVerticalPos = Range.clip(pinchVerticalPos, robot.MIN_SERVO, robot.MAX_SERVO);
+                robot.pinchVertical.setPosition(pinchVerticalPos);
                 //               sleep(CYCLE_MS);
                 //               idle();
                 // Choose to drive using either Tank Mode, or POV Mode
@@ -154,7 +164,8 @@ public class Basic_driving extends LinearOpMode {
                 // Show the elapsed game time and wheel power.
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
                 telemetry.addData("Motors", "leftfront (%.2f), rightfront (%.2f),leftback (%.2f),rightback (%.2f)", leftFrontPower, rightFrontPower, leftBackPower, rightBackPower);
-                telemetry.addData("vacuum", "%2f", vacuumPosition);
+                telemetry.addData("Pinch Horizontal Position ", "%2f", pinchHorizontalPos);
+                telemetry.addData("Pinch Vertical Position ", "%2f", pinchVerticalPos);
                 telemetry.addData("Linear Slide", "%2f", liftPower);
                 telemetry.update();
 
