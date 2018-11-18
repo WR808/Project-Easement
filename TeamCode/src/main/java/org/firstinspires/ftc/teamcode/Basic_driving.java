@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -58,7 +59,7 @@ public class Basic_driving extends LinearOpMode {
     final double pinchSpeed = 0.01;                   // sets rate to move servo
     double pinchOffset = 0;                       // Servo mid position
     double pinchVerticalPos = RoverBot.MIN_SERVO;
-    double pinchHorizontalPos = RoverBot.MID_SERVO;
+    double pinchHorizontalPos = RoverBot.MIN_SERVO;
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     /* Constructor */
@@ -81,6 +82,7 @@ public class Basic_driving extends LinearOpMode {
      //   sleep(2000);
 
         robot.linearLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.pinchVertical.setDirection(Servo.Direction.REVERSE);
       //  sleep(2000);
 
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -172,7 +174,4 @@ public class Basic_driving extends LinearOpMode {
             }
         }
     }
-
-
 }
-

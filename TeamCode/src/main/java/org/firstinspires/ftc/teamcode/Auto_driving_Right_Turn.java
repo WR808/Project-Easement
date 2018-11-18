@@ -169,10 +169,6 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
         encoderDrive(DRIVE_SPEED,  29,  29, 7.0);
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
-
-
-
-
     }
 
     private void encoderDrive ( double speed, double leftInches, double rightInches,

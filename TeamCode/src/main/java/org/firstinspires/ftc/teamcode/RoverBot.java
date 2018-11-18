@@ -35,6 +35,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -76,7 +77,6 @@ public class RoverBot {
 
 
     public RoverBot() {
-
     }
 
     /* Initialize standard Hardware interfaces */
@@ -86,16 +86,16 @@ public class RoverBot {
 
         // Define and Initialize Motors
         leftFrontDrive = hwMap.get(DcMotor.class, "Front_L");
-        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
 
         leftBackDrive = hwMap.get(DcMotor.class, "Chain_L");
-        leftBackDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
 
         rightFrontDrive = hwMap.get(DcMotor.class, "Front_R");
-        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
         rightBackDrive = hwMap.get(DcMotor.class, "Chain_R");
-        rightBackDrive.setDirection(DcMotor.Direction.REVERSE); // Set to REVERSE if using AndyMark motors
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
 
         linearLift = hwMap.get(DcMotor.class, "Lift");
         linearLift.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
@@ -112,8 +112,8 @@ public class RoverBot {
         pinchVertical = hwMap.get(Servo.class, "pinch_v");
         pinchHorizontal = hwMap.get(Servo.class, "pinch_h");
 
-        pinchVertical.setPosition(MIN_SERVO);
-        pinchHorizontal.setPosition(MID_SERVO);
+        //pinchVertical.setPosition(pinchVertical.getPosition());
+        //pinchHorizontal.setPosition(pinchHorizontal.getPosition());
 
         // setup sensors
         // get a reference to the color sensor.

@@ -85,9 +85,13 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     static final double TURN_SPEED = 0.2;
     static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
-    double vacuumOffset = 0;                       // Servo mid position
+    /*double vacuumOffset = 0;                       // Servo mid position
     final double vacuumSpeed = 0.01;                   // sets rate to move servo
-    double vacuumPosition = RoverBot.MIN_SERVO;
+    double vacuumPosition = RoverBot.MIN_SERVO;*/
+    final double pinchSpeed = 0.01;                   // sets rate to move servo
+    double pinchOffset = 0;                       // Servo mid position
+    double pinchVerticalPos = RoverBot.MIN_SERVO;
+    double pinchHorizontalPos = RoverBot.MIN_SERVO;
     static final int CYCLE_MS = 50;     // period of each cycle
 
     //linear lift encoder variables
@@ -201,13 +205,16 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
 
         encoderLift(DRIVE_SPEED, -120, 8);
-        rotate(-180, 0.7);
-        /*rotate(-30, 0.25);
-        rotate(-15, 0.25);
-        rotate(40, 0.25);
-        rotate(30, 0.25);
-        rotate(15, 0.25);*/
-        encoderLift(DRIVE_SPEED, 60, 4);
+        rotate(-180, -0.1);
+        encoderLift(DRIVE_SPEED, 100, 4);
+        //encoderDrive(DRIVE_SPEED, 10, 10, 5);
+
+        // Drive straight using IMU until color sensor detects stuff
+        driveIMU(2000);
+        rotate(45, -0.1);
+        driveIMU();
+        rotate(90, -0.1);
+        driveIMU();
     }
 
     private void updateColorSensor(float[] hsvValues, final float[] values, double SCALE_FACTOR, final View relativeLayout) {
@@ -420,6 +427,19 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
                                         + gravity.zAccel * gravity.zAccel));
                     }
                 });
+        telemetry.addLine()
+                .addData("OpModeIsActive", new Func<String>() {
+                    @Override
+                    public String value() {
+                        if(opModeIsActive()) {
+                            return "true";
+                        } else if(!opModeIsActive()) {
+                            return "false";
+                        } else {
+                            return "What???";
+                        }
+                    }
+                });
     }
 
     //----------------------------------------------------------------------------------------------
@@ -471,6 +491,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             }
         }
         else    // left turn.
+         //   while (opModeIsActive() && getAngle() == 0) {}
             while (opModeIsActive() && getAngle() < degrees) {
                 telemetry.update();
             }
@@ -498,7 +519,6 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // We have to process the angle because the imu works in euler angles so the Z axis is
         // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
         // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
-        lastAngles = angles;
 
         Orientation angles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -514,5 +534,51 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         lastAngles = angles;
 
         return globalAngle;
+    }
+
+    // If you call it with driveIMU(); then it will drive until the color sensor gets within 3 inches of an object.
+    // If you call it with driveIMU(distance); it will drive that distance but it will be straight as well.
+
+    private void driveIMU() {
+        // Use gyro to drive in a straight line.
+        correction = checkDirection();
+
+        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+        telemetry.addData("2 global heading", globalAngle);
+        telemetry.addData("3 correction", correction);
+        telemetry.update();
+
+        robot.leftFrontDrive.setPower(power - correction);
+        robot.leftBackDrive.setPower(power - correction);
+        robot.rightFrontDrive.setPower(power);
+        robot.rightBackDrive.setPower(power);
+
+        while ((robot.sensorDistanceL.getDistance(DistanceUnit.INCH) > 3) || (robot.sensorDistanceR.getDistance(DistanceUnit.INCH) > 3)) {}
+        robot.leftFrontDrive.setPower(0);
+        robot.leftBackDrive.setPower(0);
+        robot.rightFrontDrive.setPower(0);
+        robot.rightBackDrive.setPower(0);
+    }
+
+    private void driveIMU(long time) {
+        // Use gyro to drive in a straight line.
+        correction = checkDirection();
+
+        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+        telemetry.addData("2 global heading", globalAngle);
+        telemetry.addData("3 correction", correction);
+        telemetry.update();
+
+        robot.leftFrontDrive.setPower(power - correction);
+        robot.leftBackDrive.setPower(power - correction);
+        robot.rightFrontDrive.setPower(power);
+        robot.rightBackDrive.setPower(power);
+
+        sleep(time);
+
+        robot.leftFrontDrive.setPower(0);
+        robot.leftBackDrive.setPower(0);
+        robot.rightFrontDrive.setPower(0);
+        robot.rightBackDrive.setPower(0);
     }
 }
