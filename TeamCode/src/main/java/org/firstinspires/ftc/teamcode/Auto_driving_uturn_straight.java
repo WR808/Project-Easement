@@ -33,15 +33,10 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.view.View;
 
-import com.qualcomm.hardware.motors.RevRobotics20HdHexMotor;
-import com.qualcomm.hardware.motors.RevRobotics40HdHexMotor;
-import com.qualcomm.hardware.motors.RevRoboticsCoreHexMotor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
@@ -51,7 +46,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-import java.lang.reflect.Array;
 import java.util.Locale;
 
 
@@ -60,21 +54,17 @@ import java.util.Locale;
  * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
  * of the FTC Driver Station. When an selection is made from the menu, the corresponding OpMode
  * class is instantiated on the Robot Controller and executed.
- *
+ * <p>
  * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
  * It includes all the skeletal structure that all linear OpModes contain.
- *
+ * <p>
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto: Uturn Driving", group="Linear Opmode")
+@Autonomous(name = "Auto: Uturn Driving", group = "Linear Opmode")
 
 public class Auto_driving_uturn_straight extends LinearOpMode {
-
-    // Declare OpMode members.
-    private ElapsedTime runtime = new ElapsedTime();
-
 
     static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: HD HEX Motor 40
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
@@ -85,6 +75,11 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     static final double TURN_SPEED = 0.2;
     static final double COUNTS_PER_INCH_Chain = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION * 2) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
+    static final int CYCLE_MS = 50;     // period of each cycle
+    //linear lift encoder variables
+    static final double COUNTS_PER_MOTOR_CORE = 290;    // eg: HD HEX Motor 40
+    static final double COUNTS_PER_INCH_CORE = (COUNTS_PER_MOTOR_CORE * DRIVE_GEAR_REDUCTION) /
+            (3.1415);
     /*double vacuumOffset = 0;                       // Servo mid position
     final double vacuumSpeed = 0.01;                   // sets rate to move servo
     double vacuumPosition = RoverBot.MIN_SERVO;*/
@@ -92,20 +87,15 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     double pinchOffset = 0;                       // Servo mid position
     double pinchVerticalPos = RoverBot.MIN_SERVO;
     double pinchHorizontalPos = RoverBot.MIN_SERVO;
-    static final int CYCLE_MS = 50;     // period of each cycle
-
-    //linear lift encoder variables
-    static final double COUNTS_PER_MOTOR_CORE = 290;    // eg: HD HEX Motor 40
-    static final double COUNTS_PER_INCH_CORE = (COUNTS_PER_MOTOR_CORE * DRIVE_GEAR_REDUCTION) /
-            (3.1415);
     Orientation angles;
     Acceleration gravity;
-
     Orientation lastAngles = new Orientation();
     double globalAngle, power = .30, correction;
+    // Declare OpMode members.
+    private ElapsedTime runtime = new ElapsedTime();
+    private RoverBot robot = new RoverBot();
 
-    private double checkDirection()
-    {
+    private double checkDirection() {
         // The gain value determines how sensitive the correction is to direction changes.
         // You will have to experiment with your robot to get small smooth direction changes
         // to stay on a straight line.
@@ -122,10 +112,6 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
 
         return correction;
     }
-
-
-    private RoverBot robot = new RoverBot();
-
 
     @Override
     public void runOpMode() {
@@ -179,7 +165,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         while (!isStopRequested() && !robot.imu.isGyroCalibrated()) {
             sleep(50);
             idle();
-            if(localIterations == 0) {
+            if (localIterations == 0) {
                 telemetry.addData("IMU Status", "IMU is not calibrated. Please wait while we calibrate the IMU.");
                 telemetry.update();
                 localIterations++;
@@ -246,7 +232,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     }
 
     private void encoderDrive(double speed, double leftInches, double rightInches,
-                             double timeoutS) {
+                              double timeoutS) {
         int newLeftFrontTarget;
         int newLeftBackTarget;
         int newRightFrontTarget;
@@ -313,7 +299,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     }
 
     private void encoderLift(double speed, double inches,
-                            double timeoutS) {
+                             double timeoutS) {
         int liftTarget;
 
         // Ensure that the opmode is still active
@@ -362,7 +348,8 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
             sleep(250);   // optional pause after each move
         }
     }
-    private void composeTelemetry () {
+
+    private void composeTelemetry() {
 
         // At the beginning of each telemetry update, grab a bunch of data
         // from the IMU that we will then display in separate lines.
@@ -431,9 +418,9 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
                 .addData("OpModeIsActive", new Func<String>() {
                     @Override
                     public String value() {
-                        if(opModeIsActive()) {
+                        if (opModeIsActive()) {
                             return "true";
-                        } else if(!opModeIsActive()) {
+                        } else if (!opModeIsActive()) {
                             return "false";
                         } else {
                             return "What???";
@@ -446,16 +433,16 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     // Formatting
     //----------------------------------------------------------------------------------------------
 
-    String formatAngle (AngleUnit angleUnit,double angle){
+    String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));
     }
 
-    String formatDegrees ( double degrees){
+    String formatDegrees(double degrees) {
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
     }
 
     private void rotate(int degrees, double power) {
-        double  leftPower, rightPower;
+        double leftPower, rightPower;
 
         // restart imu movement tracking.
         resetAngle();
@@ -466,12 +453,10 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         if (degrees < 0) {   // turn right.
             leftPower = -power;
             rightPower = +power;
-        }
-        else if (degrees > 0) {   // turn left.
+        } else if (degrees > 0) {   // turn left.
             leftPower = power;
             rightPower = -power;
-        }
-        else return;
+        } else return;
 
         // set power to rotate.
         robot.leftFrontDrive.setPower(leftPower);
@@ -481,17 +466,16 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         robot.rightBackDrive.setPower(rightPower);
 
         // rotate until turn is completed.
-        if (degrees < 0)
-        {
+        if (degrees < 0) {
             // On right turn we have to get off zero first.
-            while (opModeIsActive() && getAngle() == 0) {}
+            while (opModeIsActive() && getAngle() == 0) {
+            }
 
             while (opModeIsActive() && getAngle() > degrees) {
                 telemetry.update();
             }
-        }
-        else    // left turn.
-         //   while (opModeIsActive() && getAngle() == 0) {}
+        } else    // left turn.
+            //   while (opModeIsActive() && getAngle() == 0) {}
             while (opModeIsActive() && getAngle() < degrees) {
                 telemetry.update();
             }
@@ -509,11 +493,13 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // reset angle tracking on new heading.
         resetAngle();
     }
+
     private void resetAngle() {
         lastAngles = robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         globalAngle = 0;
     }
+
     private double getAngle() {
         // We experimentally determined the Z axis is the axis we want to use for heading angle.
         // We have to process the angle because the imu works in euler angles so the Z axis is
@@ -540,27 +526,20 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
     // If you call it with driveIMU(distance); it will drive that distance but it will be straight as well.
 
     private void driveIMU() {
-        // Use gyro to drive in a straight line.
-        correction = checkDirection();
+        resetAngle();
+        sleep(500);
+        while ((robot.sensorDistanceL.getDistance(DistanceUnit.CM) > 3) & (robot.sensorDistanceR.getDistance(DistanceUnit.CM) > 3)) {
+            driveStraight();
 
-        telemetry.addData("1 imu heading", lastAngles.firstAngle);
-        telemetry.addData("2 global heading", globalAngle);
-        telemetry.addData("3 correction", correction);
-        telemetry.update();
+        }
 
-        robot.leftFrontDrive.setPower(power - correction);
-        robot.leftBackDrive.setPower(power - correction);
-        robot.rightFrontDrive.setPower(power);
-        robot.rightBackDrive.setPower(power);
-
-        while ((robot.sensorDistanceL.getDistance(DistanceUnit.INCH) > 3) || (robot.sensorDistanceR.getDistance(DistanceUnit.INCH) > 3)) {}
         robot.leftFrontDrive.setPower(0);
         robot.leftBackDrive.setPower(0);
         robot.rightFrontDrive.setPower(0);
         robot.rightBackDrive.setPower(0);
     }
 
-    private void driveIMU(long time) {
+    private void driveStraight() {
         // Use gyro to drive in a straight line.
         correction = checkDirection();
 
@@ -569,12 +548,21 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         telemetry.addData("3 correction", correction);
         telemetry.update();
 
-        robot.leftFrontDrive.setPower(power - correction);
-        robot.leftBackDrive.setPower(power - correction);
+        robot.leftFrontDrive.setPower(power + correction);
+        robot.leftBackDrive.setPower(power + correction);
         robot.rightFrontDrive.setPower(power);
         robot.rightBackDrive.setPower(power);
+    }
 
-        sleep(time);
+    private void driveIMU(long time) {
+        // Use gyro to drive in a straight line.
+
+        resetAngle();
+        ElapsedTime elapsedTime = null;
+        elapsedTime.reset();
+        while (elapsedTime.milliseconds() < time) {
+            driveStraight();
+        }
 
         robot.leftFrontDrive.setPower(0);
         robot.leftBackDrive.setPower(0);
