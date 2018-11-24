@@ -62,7 +62,7 @@ import java.util.Locale;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name = "Auto: Uturn Driving", group = "Linear Opmode")
+@Autonomous(name = "Auto: CraterPosition", group = "Linear Opmode")
 
 public class Auto_driving_uturn_straight extends LinearOpMode {
 
@@ -190,17 +190,18 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
 
-        encoderLift(DRIVE_SPEED, -120, 8);
+        encoderLift(DRIVE_SPEED, 120, 8);
         rotate(-180, -0.1);
-        encoderLift(DRIVE_SPEED, 100, 4);
+        encoderLift(DRIVE_SPEED, -100, 4);
         //encoderDrive(DRIVE_SPEED, 10, 10, 5);
 
         // Drive straight using IMU until color sensor detects stuff
-        driveIMU(2000);
+        driveIMU(1000);
         rotate(45, -0.1);
         driveIMU();
         rotate(90, -0.1);
         driveIMU();
+
     }
 
     private void updateColorSensor(float[] hsvValues, final float[] values, double SCALE_FACTOR, final View relativeLayout) {
@@ -527,10 +528,17 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
 
     private void driveIMU() {
         resetAngle();
-        sleep(500);
-        while ((robot.sensorDistanceL.getDistance(DistanceUnit.CM) > 3) & (robot.sensorDistanceR.getDistance(DistanceUnit.CM) > 3)) {
-            driveStraight();
+      //  sleep(500);
 
+
+        String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+        String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+
+        while ((distanceLeftNaN == "NaN") && (distanceRightNaN == "NaN")) {
+
+            driveStraight();
+            distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+            distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
         }
 
         robot.leftFrontDrive.setPower(0);
@@ -548,8 +556,8 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         telemetry.addData("3 correction", correction);
         telemetry.update();
 
-        robot.leftFrontDrive.setPower(power + correction);
-        robot.leftBackDrive.setPower(power + correction);
+        robot.leftFrontDrive.setPower(power - correction);
+        robot.leftBackDrive.setPower(power - correction);
         robot.rightFrontDrive.setPower(power);
         robot.rightBackDrive.setPower(power);
     }
@@ -558,7 +566,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // Use gyro to drive in a straight line.
 
         resetAngle();
-        ElapsedTime elapsedTime = null;
+        ElapsedTime elapsedTime = new ElapsedTime();
         elapsedTime.reset();
         while (elapsedTime.milliseconds() < time) {
             driveStraight();
