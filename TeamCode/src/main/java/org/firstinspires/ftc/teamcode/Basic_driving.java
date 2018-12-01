@@ -82,7 +82,10 @@ public class Basic_driving extends LinearOpMode {
      //   sleep(2000);
 
         robot.linearLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.pinchVertical.setDirection(Servo.Direction.REVERSE);
+        robot.pinchVertical.setDirection(Servo.Direction.FORWARD);
+        robot.pinchHorizontal.setDirection(Servo.Direction.FORWARD);
+
+
       //  sleep(2000);
 
         // Initialize the hardware variables. Note that the strings used here as parameters
@@ -122,7 +125,7 @@ public class Basic_driving extends LinearOpMode {
 
                 // Move both servos to new position.  Assume servos are mirror image of each other.
                 pinchHorizontalPos = Range.clip(pinchHorizontalPos, robot.MIN_SERVO, robot.MAX_SERVO);
-                robot.pinchHorizontal.setPosition(pinchHorizontalPos);
+              //  robot.pinchHorizontal.setPosition(pinchHorizontalPos);
 
                 if (gamepad2.a)
                     pinchVerticalPos += pinchSpeed;
@@ -131,7 +134,7 @@ public class Basic_driving extends LinearOpMode {
 
                 // Move both servos to new position.  Assume servos are mirror image of each other.
                 pinchVerticalPos = Range.clip(pinchVerticalPos, robot.MIN_SERVO, robot.MAX_SERVO);
-                robot.pinchVertical.setPosition(pinchVerticalPos);
+              //  robot.pinchVertical.setPosition(pinchVerticalPos);
                 //               sleep(CYCLE_MS);
                 //               idle();
                 // Choose to drive using either Tank Mode, or POV Mode
@@ -141,10 +144,10 @@ public class Basic_driving extends LinearOpMode {
                 // - This uses basic math to combine motions and is easier to drive straight.
                 double drive = -gamepad1.left_stick_y;
                 double turn = -gamepad1.right_stick_x;
-                leftFrontPower = Range.clip(drive + turn, -1, 1.0);
-                rightFrontPower = Range.clip(drive - turn, -1.0, 1.0);
-                leftBackPower = Range.clip(drive + turn, -1.0, 1.0);
-                rightBackPower = Range.clip(drive - turn, -1.0, 1.0);
+                leftFrontPower = Range.clip(drive - turn, -1, 1.0);
+                rightFrontPower = Range.clip(drive + turn, -1.0, 1.0);
+                leftBackPower = Range.clip(drive - turn, -1.0, 1.0);
+                rightBackPower = Range.clip(drive + turn, -1.0, 1.0);
 
                 // Tank Mode uses one stick to control each wheel.
                 // - This requires no math, but it is hard to drive forward slowly and keep straight.

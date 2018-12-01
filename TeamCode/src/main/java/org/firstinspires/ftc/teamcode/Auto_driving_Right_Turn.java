@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.view.View;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -57,7 +58,7 @@ import java.util.Locale;
  */
 
 @Autonomous(name="Auto: right turn Driving", group="Linear Opmode")
-
+@Disabled
 public class Auto_driving_Right_Turn extends LinearOpMode {
 
     // Declare OpMode members.
