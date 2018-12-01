@@ -62,9 +62,9 @@ import java.util.Locale;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name = "Auto: CraterPosition", group = "Linear Opmode")
+@Autonomous(name = "Auto: DepotPosition", group = "Linear Opmode")
 
-public class Auto_driving_uturn_straight extends LinearOpMode {
+public class Auto_driving_Depot extends LinearOpMode {
 
     static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: HD HEX Motor 40
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
@@ -191,15 +191,17 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
 
         encoderLift(DRIVE_SPEED, 20, 4);
-        rotate(-180, -0.1);
+        rotate(-177, -0.1);
        // encoderLift(DRIVE_SPEED, -100, 4);
         //encoderDrive(DRIVE_SPEED, 10, 10, 5);
 
         // Drive straight using IMU until color sensor detects stuff
-        driveIMU(2500);
-     //   rotate(45, -0.1);
-    //    driveIMU();
-      //  rotate(90, -0.1);
+        driveIMU(1000);
+       rotate(-45, -0.1);
+       driveIMU(2000);
+       rotate(-85,-0.1);
+       driveIMU(3000);
+     //   rotate(90, -0.1);
       //  driveIMU();
 
     }
@@ -534,7 +536,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
         String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
 
-        while ((distanceLeftNaN.equals("NaN")) && (distanceRightNaN.equals("NaN"))) {
+        while ((distanceLeftNaN == "NaN") && (distanceRightNaN == "NaN")) {
 
             driveStraight();
             distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
