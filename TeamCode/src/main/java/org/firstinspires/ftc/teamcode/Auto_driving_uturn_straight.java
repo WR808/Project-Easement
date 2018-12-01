@@ -534,7 +534,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
         String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
 
-        while ((distanceLeftNaN == "NaN") && (distanceRightNaN == "NaN")) {
+        while ((distanceLeftNaN.equals("NaN")) && (distanceRightNaN.equals("NaN"))) {
 
             driveStraight();
             distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));

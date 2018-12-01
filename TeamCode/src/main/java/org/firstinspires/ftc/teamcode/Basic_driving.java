@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.lynx.commands.core.LynxI2cConfigureChannelCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -115,9 +116,9 @@ public class Basic_driving extends LinearOpMode {
 
                 liftPower = Range.clip(lift, -5.0, 5.0);
 
-                if (gamepad2.right_bumper)
+                if (gamepad2.x)
                     pinchHorizontalPos += pinchSpeed;
-                else if (gamepad2.left_bumper)
+                else if (gamepad2.y)
                     pinchHorizontalPos -= pinchSpeed;
 
                 // Move both servos to new position.  Assume servos are mirror image of each other.
@@ -145,7 +146,6 @@ public class Basic_driving extends LinearOpMode {
                 rightFrontPower = Range.clip(drive - turn, -1.0, 1.0);
                 leftBackPower = Range.clip(drive + turn, -1.0, 1.0);
                 rightBackPower = Range.clip(drive - turn, -1.0, 1.0);
-
                 // Tank Mode uses one stick to control each wheel.
                 // - This requires no math, but it is hard to drive forward slowly and keep straight.
                 // leftPower  = -gamepad1.left_stick_y ;
