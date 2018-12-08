@@ -36,6 +36,7 @@ import android.view.View;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Func;
@@ -153,6 +154,9 @@ public class Auto_driving_Depot extends LinearOpMode {
         int relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
         final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
+        robot.pinchVertical.setDirection(Servo.Direction.FORWARD);
+        robot.pinchHorizontal.setDirection(Servo.Direction.FORWARD);
+
         // Wait for the game to start (driver presses PLAY)
         // Set up our telemetry dashboard
         composeTelemetry();
@@ -196,12 +200,16 @@ public class Auto_driving_Depot extends LinearOpMode {
         //encoderDrive(DRIVE_SPEED, 10, 10, 5);
 
         // Drive straight using IMU until color sensor detects stuff
-        driveIMU(1000);
+       /* driveIMU(1000); use this code if color sensors stop working.
        rotate(-45, -0.1);
        driveIMU(2000);
        rotate(-85,-0.1);
-       driveIMU(3000);
-     //   rotate(90, -0.1);
+       driveIMU(3000);*/
+       driveIMU();
+       dropMarker();
+       rotate(-133,-0.1);
+     driveIMU();
+       //   rotate(90, -0.1);
       //  driveIMU();
 
     }
@@ -534,13 +542,13 @@ public class Auto_driving_Depot extends LinearOpMode {
 
 
         String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
-        String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+        String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceR.getDistance(DistanceUnit.CM));
 
-        while ((distanceLeftNaN == "NaN") && (distanceRightNaN == "NaN")) {
+        while ((distanceLeftNaN.equals("NaN")) && (distanceRightNaN.equals("NaN"))) {
 
             driveStraight();
             distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
-            distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+            distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceR.getDistance(DistanceUnit.CM));
         }
 
         robot.leftFrontDrive.setPower(0);
@@ -579,4 +587,43 @@ public class Auto_driving_Depot extends LinearOpMode {
         robot.rightFrontDrive.setPower(0);
         robot.rightBackDrive.setPower(0);
     }
+    private void driveStraightBackwards() {
+        // Use gyro to drive in a straight line.
+        correction = checkDirection();
+
+        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+        telemetry.addData("2 global heading", globalAngle);
+        telemetry.addData("3 correction", correction);
+        telemetry.update();
+
+        robot.leftFrontDrive.setPower(-power - correction);
+        robot.leftBackDrive.setPower(-power - correction);
+        robot.rightFrontDrive.setPower(-power);
+        robot.rightBackDrive.setPower(-power);
+    }
+    private void driveBackwardIMU(long time) {
+        // Use gyro to drive in a straight line.
+
+        resetAngle();
+        ElapsedTime elapsedTime = new ElapsedTime();
+        elapsedTime.reset();
+        while (elapsedTime.milliseconds() < time) {
+            driveStraightBackwards();
+        }
+
+        robot.leftFrontDrive.setPower(0);
+        robot.leftBackDrive.setPower(0);
+        robot.rightFrontDrive.setPower(0);
+        robot.rightBackDrive.setPower(0);
+    }
+    private void dropMarker() {
+        robot.pinchVertical.setPosition(0);
+        robot.pinchHorizontal.setPosition(0.5);
+        sleep(1200);
+        driveBackwardIMU(500);
+        robot.pinchVertical.setPosition(1);
+        robot.pinchHorizontal.setPosition(0.8);
+        sleep(1000);
+    }
+
 }

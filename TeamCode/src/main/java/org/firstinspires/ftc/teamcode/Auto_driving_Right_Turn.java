@@ -36,6 +36,7 @@ import android.view.View;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -57,8 +58,8 @@ import java.util.Locale;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="Auto: right turn Driving", group="Linear Opmode")
-@Disabled
+@Autonomous(name="Auto: distance sensor test", group="Linear Opmode")
+
 public class Auto_driving_Right_Turn extends LinearOpMode {
 
     // Declare OpMode members.
@@ -159,15 +160,40 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
         });
 
         telemetry.update();
+        String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+        String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceR.getDistance(DistanceUnit.CM));
+
+        while ((distanceLeftNaN.equals("NaN")) && (distanceRightNaN.equals("NaN"))) {
+
+
+            distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
+            distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceR.getDistance(DistanceUnit.CM));
+
+            telemetry.addData("Distance (cm)",
+                   distanceLeftNaN);
+            telemetry.addData("Distance (cm)",
+                    distanceRightNaN);
+            telemetry.addLine("first loop");
+            telemetry.update();
+        }
+        while (opModeIsActive())
+
+        {
+            telemetry.addData("Distance (cm)",
+                    String.format(Locale.US, "%02f", robot.sensorDistanceL.getDistance(DistanceUnit.CM)));
+            telemetry.addData("Distance (cm)",
+                    String.format(Locale.US, "%02f", robot.sensorDistanceR.getDistance(DistanceUnit.CM)));
+            telemetry.update();
+        };
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
 
-        encoderLift(DRIVE_SPEED,120,7);
-        encoderDrive(TURN_SPEED, -9,9,5);
-        encoderLift(DRIVE_SPEED*2, -70, 3);
-        encoderDrive(DRIVE_SPEED,  9,  9, 2.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,  -6,  6, 2.0);
-        encoderDrive(DRIVE_SPEED,  29,  29, 7.0);
+        //encoderLift(DRIVE_SPEED,120,7);
+        //encoderDrive(TURN_SPEED, -9,9,5);
+        //encoderLift(DRIVE_SPEED*2, -70, 3);
+        //encoderDrive(DRIVE_SPEED,  9,  9, 2.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        //encoderDrive(TURN_SPEED,  -6,  6, 2.0);
+        //encoderDrive(DRIVE_SPEED,  29,  29, 7.0);
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
     }
@@ -211,6 +237,7 @@ public class Auto_driving_Right_Turn extends LinearOpMode {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
+
             while (opModeIsActive() &&
                     (runtime.seconds() < timeoutS) &&
                     (robot.leftFrontDrive.isBusy() && robot.leftBackDrive.isBusy() && robot.rightFrontDrive.isBusy() && robot.rightBackDrive.isBusy())) {

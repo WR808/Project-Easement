@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.view.View;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -63,9 +64,9 @@ import java.util.Locale;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name = "Auto: CraterPosition", group = "Linear Opmode")
-
-public class Auto_driving_uturn_straight extends LinearOpMode {
+@Autonomous(name = "Auto: pinchtest", group = "Linear Opmode")
+@Disabled
+public class Autodrivingpinchtest extends LinearOpMode {
 
     static final double COUNTS_PER_MOTOR_REV = 2240;    // eg: HD HEX Motor 40
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // This is < 1.0 if geared UP
@@ -193,20 +194,8 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         encoderDrive(DRIVE_SPEED, 10, 10, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
-
-        encoderLift(DRIVE_SPEED, 20, 4);
-        rotate(-180, -0.1);
-       // encoderLift(DRIVE_SPEED, -100, 4);
-        //encoderDrive(DRIVE_SPEED, 10, 10, 5);
-
-        // Drive straight using IMU until color sensor detects stuff
-      //  driveIMU(2500);  If the color sensors aren't working use this line.
-     driveIMU(1200);
-           rotate(45, -0.1);
-        driveIMU();
-        rotate(90, -0.1);
-        driveIMU();
-        dropMarker();
+dropMarker();
+sleep(30000);
     }
 
     private void dropMarker() {
@@ -547,7 +536,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
 
 
         String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
-        String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceR.getDistance(DistanceUnit.CM));
+        String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
 
         while ((distanceLeftNaN.equals("NaN")) && (distanceRightNaN.equals("NaN"))) {
 
@@ -576,6 +565,20 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         robot.rightFrontDrive.setPower(power);
         robot.rightBackDrive.setPower(power);
     }
+    private void driveStraightBackwards() {
+        // Use gyro to drive in a straight line.
+        correction = checkDirection();
+
+        telemetry.addData("1 imu heading", lastAngles.firstAngle);
+        telemetry.addData("2 global heading", globalAngle);
+        telemetry.addData("3 correction", correction);
+        telemetry.update();
+
+        robot.leftFrontDrive.setPower(-power - correction);
+        robot.leftBackDrive.setPower(-power - correction);
+        robot.rightFrontDrive.setPower(-power);
+        robot.rightBackDrive.setPower(-power);
+    }
 
     private void driveIMU(long time) {
         // Use gyro to drive in a straight line.
@@ -592,20 +595,6 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         robot.rightFrontDrive.setPower(0);
         robot.rightBackDrive.setPower(0);
     }
-    private void driveStraightBackwards() {
-        // Use gyro to drive in a straight line.
-        correction = checkDirection();
-
-        telemetry.addData("1 imu heading", lastAngles.firstAngle);
-        telemetry.addData("2 global heading", globalAngle);
-        telemetry.addData("3 correction", correction);
-        telemetry.update();
-
-        robot.leftFrontDrive.setPower(-power - correction);
-        robot.leftBackDrive.setPower(-power - correction);
-        robot.rightFrontDrive.setPower(-power);
-        robot.rightBackDrive.setPower(-power);
-    }
     private void driveBackwardIMU(long time) {
         // Use gyro to drive in a straight line.
 
@@ -621,4 +610,5 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         robot.rightFrontDrive.setPower(0);
         robot.rightBackDrive.setPower(0);
     }
+
 }
