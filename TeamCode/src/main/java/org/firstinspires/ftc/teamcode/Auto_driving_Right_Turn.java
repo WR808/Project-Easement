@@ -59,7 +59,7 @@ import java.util.Locale;
  */
 
 @Autonomous(name="Auto: distance sensor test", group="Linear Opmode")
-
+@Disabled
 public class Auto_driving_Right_Turn extends LinearOpMode {
 
     // Declare OpMode members.

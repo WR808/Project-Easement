@@ -125,16 +125,22 @@ public class Basic_driving extends LinearOpMode {
 
                 // Move both servos to new position.  Assume servos are mirror image of each other.
                 pinchHorizontalPos = Range.clip(pinchHorizontalPos, robot.MIN_SERVO, robot.MAX_SERVO);
-              //  robot.pinchHorizontal.setPosition(pinchHorizontalPos);
+                robot.pinchHorizontal.setPosition(pinchHorizontalPos);
 
-                if (gamepad2.a)
+                if (gamepad2.y)
                     pinchVerticalPos += pinchSpeed;
-                else if (gamepad2.b)
+                else if (gamepad2.a)
                     pinchVerticalPos -= pinchSpeed;
+
+                if (gamepad2.b)
+                    pinchHorizontalPos -= pinchSpeed;
+
+                if (gamepad2.x)
+                    pinchHorizontalPos += pinchSpeed;
 
                 // Move both servos to new position.  Assume servos are mirror image of each other.
                 pinchVerticalPos = Range.clip(pinchVerticalPos, robot.MIN_SERVO, robot.MAX_SERVO);
-              //  robot.pinchVertical.setPosition(pinchVerticalPos);
+                robot.pinchVertical.setPosition(pinchVerticalPos);
                 //               sleep(CYCLE_MS);
                 //               idle();
                 // Choose to drive using either Tank Mode, or POV Mode

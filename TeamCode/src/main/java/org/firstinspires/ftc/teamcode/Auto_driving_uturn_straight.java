@@ -194,18 +194,18 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         // encoderDrive(TURN_SPEED,   6, -6, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
         //encoderDrive(DRIVE_SPEED, -12, -12, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout*/
 
-        encoderLift(DRIVE_SPEED, 20, 4);
-        rotate(-180, -0.1);
+        encoderLift(DRIVE_SPEED, 40, 5);
+        rotate(-175, -0.1);
        // encoderLift(DRIVE_SPEED, -100, 4);
         //encoderDrive(DRIVE_SPEED, 10, 10, 5);
 
         // Drive straight using IMU until color sensor detects stuff
-      //  driveIMU(2500);  If the color sensors aren't working use this line.
-     driveIMU(1200);
-           rotate(45, -0.1);
-        driveIMU();
-        rotate(90, -0.1);
-        driveIMU();
+        //  driveIMU(2500);  If the color sensors aren't working use this line.
+        driveIMU(500);
+        rotate(45, -0.1);
+        driveIMU(2000);
+        rotate(85, -0.1);
+        driveIMU(4000);
         dropMarker();
     }
 
@@ -213,7 +213,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         robot.pinchVertical.setPosition(0);
         robot.pinchHorizontal.setPosition(0.5);
         sleep(1200);
-        driveBackwardIMU(5000);
+        driveBackwardIMU(4500);
         robot.pinchVertical.setPosition(1);
         robot.pinchHorizontal.setPosition(0.8);
         sleep(1000);
@@ -549,7 +549,7 @@ public class Auto_driving_uturn_straight extends LinearOpMode {
         String distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
         String distanceRightNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceR.getDistance(DistanceUnit.CM));
 
-        while ((distanceLeftNaN.equals("NaN")) && (distanceRightNaN.equals("NaN"))) {
+        while ((distanceLeftNaN.equals("NaN")) || (distanceRightNaN.equals("NaN"))) {
 
             driveStraight();
             distanceLeftNaN = String.format(Locale.US, "%.02f",robot.sensorDistanceL.getDistance(DistanceUnit.CM));
